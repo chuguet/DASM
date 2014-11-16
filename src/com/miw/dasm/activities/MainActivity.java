@@ -1,4 +1,6 @@
-package com.miw.dasm;
+package com.miw.dasm.activities;
+
+import com.miw.dasm.R;
 
 import android.app.Activity;
 import android.os.Bundle;
