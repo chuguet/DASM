@@ -8,5 +8,6 @@
     <string name="add">Añadir</string>
     <string name="edit">Editar</string>
     <string name="delete">Borrar</string>
+    <string name="progress_title">Conectando a la base de datos</string>
 
 </resources>
