@@ -7,13 +7,13 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.util.Log;
-
-import com.miw.dasm.connection.ClientConnectionResponse;
-
 public class HandlerPersona implements Iterable<Persona> {
 
 	private final List<Persona> personas = new ArrayList<Persona>();
+
+	public HandlerPersona(String responseSerialize) throws JSONException {
+		this.parseReponse(responseSerialize);
+	}
 
 	public Integer size() {
 		return personas.size();
@@ -39,26 +39,22 @@ public class HandlerPersona implements Iterable<Persona> {
 		return result;
 	}
 
-	public void parseReponse(ClientConnectionResponse response) {
+	public void parseReponse(String responseSerialize) throws JSONException {
 		JSONArray arrayDatos;
 		Persona persona;
-		try {
-			arrayDatos = new JSONArray(response.getReponseSerializable());
-			int numRegistros = arrayDatos.getJSONObject(0).getInt("NUMREG");
-			if (numRegistros > 0) {
-				for (int i = 1; i <= numRegistros; i++) {
-					persona = new Persona(arrayDatos.getJSONObject(i)
-							.getString("DNI"), arrayDatos.getJSONObject(i)
-							.getString("Nombre"), arrayDatos.getJSONObject(i)
-							.getString("Apellidos"), arrayDatos.getJSONObject(i)
-							.getString("Direccion"), arrayDatos.getJSONObject(i)
-							.getString("Telefono"), arrayDatos.getJSONObject(i)
-							.getInt("Equipo"));
-					this.addPersona(persona);
-				}
+		arrayDatos = new JSONArray(responseSerialize);
+		int numRegistros = arrayDatos.getJSONObject(0).getInt("NUMREG");
+		if (numRegistros > 0) {
+			for (int i = 1; i <= numRegistros; i++) {
+				persona = new Persona(arrayDatos.getJSONObject(i).getString(
+						"DNI"),
+						arrayDatos.getJSONObject(i).getString("Nombre"),
+						arrayDatos.getJSONObject(i).getString("Apellidos"),
+						arrayDatos.getJSONObject(i).getString("Direccion"),
+						arrayDatos.getJSONObject(i).getString("Telefono"),
+						arrayDatos.getJSONObject(i).getInt("Equipo"));
+				this.addPersona(persona);
 			}
-		} catch (JSONException e) {
-			Log.e("API_ERROR", e.getMessage());
 		}
 	}
 

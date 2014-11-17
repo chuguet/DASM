@@ -10,42 +10,36 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.miw.dasm.R;
 import com.miw.dasm.activities.MainActivity;
+import com.miw.dasm.model.HandlerPersona;
 
 public class ClientConnectionAPI extends AsyncTask<String, Void, String>
 		implements IClientConnectionAPI {
 
-	private ProgressDialog pDialog;
 	private MainActivity mainActivity;
 	private TypeRequest typeRequest;
 	private boolean error;
 	private final String URL = "http://demo.calamar.eui.upm.es/dasmapi/v1/miw17/fichas";
 
-	public ClientConnectionAPI(Activity activity, TypeRequest typeRequest) {
+	public ClientConnectionAPI(MainActivity mainActivity, TypeRequest typeRequest) {
 		super();
 		this.typeRequest = typeRequest;
-		this.setMainActivity((MainActivity) activity);
+		this.mainActivity = mainActivity;
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
 		error = false;
-		pDialog = new ProgressDialog(getMainActivity());
-		pDialog.setMessage(getMainActivity().getBaseContext().getString(
-				R.string.progress_title));
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(true);
-		pDialog.show();
+		this.mainActivity.showDialog();
 	}
 
 	@Override
@@ -54,7 +48,7 @@ public class ClientConnectionAPI extends AsyncTask<String, Void, String>
 		String dni = params[0];
 		String urlFinal = URL;
 		if (!dni.isEmpty()) {
-			urlFinal+="/"+dni;
+			urlFinal += "/" + dni;
 		}
 		try {
 			AndroidHttpClient httpClient = AndroidHttpClient
@@ -88,7 +82,7 @@ public class ClientConnectionAPI extends AsyncTask<String, Void, String>
 
 	@Override
 	protected void onPostExecute(String response) {
-		pDialog.dismiss();
+		this.mainActivity.closeDialog();
 		if (error) {
 			Toast.makeText(getMainActivity().getBaseContext(),
 					"Error en la conexion", Toast.LENGTH_SHORT).show();
@@ -100,14 +94,24 @@ public class ClientConnectionAPI extends AsyncTask<String, Void, String>
 			ClientConnectionRequest clientConnectionRequest) {
 		ClientConnectionResponse res = null;
 		try {
-			res = new ClientConnectionResponse(this.execute(
-					clientConnectionRequest.getDni()).get());
+			String responseSerialize = this.execute(
+					clientConnectionRequest.getDni()).get();
+			Integer numReg = new JSONArray(responseSerialize).getJSONObject(0)
+					.getInt("NUMREG");
+			HandlerPersona handlerPersona = new HandlerPersona(
+					responseSerialize);
+			res = new ClientConnectionResponse(handlerPersona, numReg);
 		} catch (InterruptedException e) {
 			Log.e("API_ERROR", e.getMessage());
 			Toast.makeText(getMainActivity().getBaseContext(),
 					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
 					.show();
 		} catch (ExecutionException e) {
+			Log.e("API_ERROR", e.getMessage());
+			Toast.makeText(getMainActivity().getBaseContext(),
+					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
+					.show();
+		} catch (JSONException e) {
 			Log.e("API_ERROR", e.getMessage());
 			Toast.makeText(getMainActivity().getBaseContext(),
 					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)

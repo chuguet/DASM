@@ -1,18 +1,32 @@
 package com.miw.dasm.connection;
 
+import com.miw.dasm.model.HandlerPersona;
+
 public class ClientConnectionResponse {
 
-	public ClientConnectionResponse (String reponseSerializable){
-		this.reponseSerializable = reponseSerializable;
-	}
-	
-	private String reponseSerializable;
+	private HandlerPersona handlerPersona;
+	private Integer numReg;
 
-	public String getReponseSerializable() {
-		return reponseSerializable;
+	public ClientConnectionResponse(HandlerPersona handlerPersona,
+			Integer numReg) {
+		this.setHandlerPersona(handlerPersona);
+		this.setNumReg(numReg);
 	}
 
-	public void setReponseSerializable(String reponseSerializable) {
-		this.reponseSerializable = reponseSerializable;
+	public HandlerPersona getHandlerPersona() {
+		return handlerPersona;
 	}
+
+	public void setHandlerPersona(HandlerPersona handlerPersona) {
+		this.handlerPersona = handlerPersona;
+	}
+
+	public Integer getNumReg() {
+		return numReg;
+	}
+
+	public void setNumReg(Integer numReg) {
+		this.numReg = numReg;
+	}
+
 }
