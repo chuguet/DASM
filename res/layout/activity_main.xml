@@ -28,7 +28,8 @@
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:labelFor="@+id/textDniSearch"
-            android:text="@string/dni" />
+            android:text="@string/dni"
+            android:textColor="@android:color/holo_blue_bright" />
 
         <EditText
             android:id="@+id/textDniSearch"

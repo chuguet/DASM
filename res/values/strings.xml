@@ -4,11 +4,20 @@
     <string name="app_name">DASM</string>
     <string name="webService">Operaciones Servicio Web</string>
     <string name="dni">DNI</string>
-    <string name="search">Buscar</string>
+    <string name="nombre">Nombre</string>
+    <string name="apellidos">Apellidos</string>
+    <string name="direccion">Dirección</string>
+    <string name="telefono">Teléfono</string>
+    <string name="equipo">Equipo</string>
     <string name="add">Añadir</string>
     <string name="edit">Editar</string>
     <string name="delete">Borrar</string>
+    <string name="search">Buscar</string>
     <string name="progress_title">Conectando a la base de datos</string>
     <string name="information">Información</string>
+    <string name="title_activity_add">Inserción de Registro</string>
+    <string name="title_activity_edit">Modificación de Registro</string>
+    <string name="title_activity_delete">Borrado de Registro</string>
+    <string name="title_activity_list">Consulta de Registros</string>
 
 </resources>
