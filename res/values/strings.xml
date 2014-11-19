@@ -19,5 +19,17 @@
     <string name="title_activity_edit">Modificación de Registro</string>
     <string name="title_activity_delete">Borrado de Registro</string>
     <string name="title_activity_list">Consulta de Registros</string>
+    <string name="first">Primero</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="last">Último</string>
+    <string name="contador_registros">registro #page# de #total_pages#</string>
+    <string name="insercion_ok">Inserción realizada</string>
+    <string name="insercion_ko">Inserción cancelada</string>
+    <string name="actualizacion_ok">Actualización realizada</string>
+    <string name="actualizacion_ko">Actualización cancelada</string>
+    <string name="borrado_ok">Borrado realizado</string>
+    <string name="borrado_ko">Borrado cancelado</string>
+    <string name="consulta">Consulta finalizada</string>
 
 </resources>

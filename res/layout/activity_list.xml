@@ -16,11 +16,17 @@
         android:text="@string/title_activity_list"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <TextView
+        android:id="@+id/contadorRegistros"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelDni"
@@ -47,8 +53,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelNombre"
@@ -75,8 +80,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelApellidos"
@@ -103,8 +107,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelDireccion"
@@ -131,8 +134,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelTelefono"
@@ -159,8 +161,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp" >
+        android:layout_gravity="center" >
 
         <TextView
             android:id="@+id/labelEquipo"
@@ -182,6 +183,40 @@
             android:ems="10"
             android:hint="@string/equipo"
             android:inputType="text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
+
+        <ImageButton
+            android:id="@+id/buttonFirst"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/first"
+            android:src="@android:drawable/ic_media_previous" />
+
+        <ImageButton
+            android:id="@+id/buttonPrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/previous"
+            android:src="@android:drawable/ic_media_rew" />
+
+        <ImageButton
+            android:id="@+id/buttonNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/next"
+            android:src="@android:drawable/ic_media_ff" />
+
+        <ImageButton
+            android:id="@+id/buttonLast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/last"
+            android:src="@android:drawable/ic_media_next" />
     </LinearLayout>
 
 </LinearLayout>

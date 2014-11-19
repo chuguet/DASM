@@ -1,16 +1,24 @@
 package com.miw.dasm.model;
 
-public class Persona {
+import java.io.Serializable;
+
+public class Persona implements Serializable {
+
+	private static final long serialVersionUID = -8809248344723168337L;
 
 	private String dni;
 	private String nombre;
 	private String apellidos;
 	private String direccion;
 	private String telefono;
-	private Integer equipo;
+	private String equipo;
+
+	public Persona() {
+
+	}
 
 	public Persona(String dni, String nombre, String apellidos,
-			String direccion, String telefono, Integer equipo) {
+			String direccion, String telefono, String equipo) {
 		super();
 		this.dni = dni;
 		this.nombre = nombre;
@@ -60,12 +68,19 @@ public class Persona {
 		this.telefono = telefono;
 	}
 
-	public Integer getEquipo() {
+	public String getEquipo() {
 		return equipo;
 	}
 
-	public void setEquipo(Integer equipo) {
+	public void setEquipo(String equipo) {
 		this.equipo = equipo;
+	}
+
+	public String toJSON() {
+		return "{\"DNI\":\"" + this.getDni() + "\",\"Nombre\":\"" + this.getNombre()
+				+ "\",\"Apellidos\":\"" + this.getApellidos() + "\",\"Direccion\":\""
+				+ this.getDireccion() + "\",\"Telefono\":\"" + this.getTelefono()
+				+ "\",\"Equipo\":\"" + this.getEquipo() + "\"}";
 	}
 
 }

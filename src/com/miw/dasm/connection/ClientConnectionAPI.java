@@ -1,6 +1,7 @@
 package com.miw.dasm.connection;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpResponse;
@@ -8,124 +9,148 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.miw.dasm.activities.MainActivity;
+import com.miw.dasm.R;
 import com.miw.dasm.model.HandlerPersona;
 
-public class ClientConnectionAPI extends AsyncTask<String, Void, String>
+public class ClientConnectionAPI extends
+		AsyncTask<ClientConnectionRequest, Void, ClientConnectionResponse>
 		implements IClientConnectionAPI {
 
-	private MainActivity mainActivity;
+	private Activity activity;
 	private TypeRequest typeRequest;
 	private boolean error;
 	private final String URL = "http://demo.calamar.eui.upm.es/dasmapi/v1/miw17/fichas";
 
-	public ClientConnectionAPI(MainActivity mainActivity, TypeRequest typeRequest) {
+	public ClientConnectionAPI(Activity activity, TypeRequest typeRequest) {
 		super();
 		this.typeRequest = typeRequest;
-		this.mainActivity = mainActivity;
+		this.activity = activity;
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
 		error = false;
-		this.mainActivity.showDialog();
+		this.showDialog();
 	}
 
+	public void showDialog() {
+		pDialog = ProgressDialog.show(getActivity(),
+				getActivity().getString(R.string.information), getActivity()
+						.getString(R.string.progress_title), false, true);
+	}
+
+	public void closeDialog() {
+		pDialog.dismiss();
+	}
+
+	private ProgressDialog pDialog;
+
 	@Override
-	protected String doInBackground(String... params) {
-		String datos = null;
-		String dni = params[0];
+	protected ClientConnectionResponse doInBackground(
+			ClientConnectionRequest... params) {
+		ClientConnectionResponse result = null;
+		String datos;
 		String urlFinal = URL;
-		if (!dni.isEmpty()) {
-			urlFinal += "/" + dni;
+		ClientConnectionRequest clientConnectionRequest = params[0];
+		if (!clientConnectionRequest.getDni().isEmpty()) {
+			urlFinal += "/" + clientConnectionRequest.getDni();
 		}
 		try {
 			AndroidHttpClient httpClient = AndroidHttpClient
 					.newInstance("AndroidHttpClient");
-			HttpRequestBase httpRequestBase = getRequestBase(urlFinal);
-			HttpResponse res = httpClient.execute(httpRequestBase);
-			datos = EntityUtils.toString(res.getEntity());
+			HttpUriRequest httpRequestBase = getRequestBase(urlFinal,
+					clientConnectionRequest.getPersona());
+			HttpResponse response = httpClient.execute(httpRequestBase);
+			datos = EntityUtils.toString(response.getEntity());
+
+			Integer numReg = new JSONArray(datos).getJSONObject(0).getInt(
+					"NUMREG");
+			HandlerPersona handlerPersona = new HandlerPersona(datos);
+			result = new ClientConnectionResponse(handlerPersona, numReg);
 			httpClient.close();
 		} catch (IOException e) {
 			Log.e("API_ERROR", e.getMessage());
 			error = true;
+		} catch (JSONException e) {
+			Log.e("API_ERROR", e.getMessage());
+			error = true;
 		}
-		return datos;
+		return result;
 	}
 
-	private HttpRequestBase getRequestBase(String urlFinal) {
-		HttpRequestBase result = null;
+	private HttpUriRequest getRequestBase(String url, String persona)
+			throws UnsupportedEncodingException {
+		HttpUriRequest result = null;
 
 		if (typeRequest.equals(TypeRequest.DELETE)) {
-			result = new HttpDelete(urlFinal);
+			result = new HttpDelete(url);
 		} else if (typeRequest.equals(TypeRequest.PUT)) {
-			result = new HttpPut(urlFinal);
+			HttpPut httpPut = new HttpPut(url);
+			StringEntity stringEntity = new StringEntity(persona, HTTP.UTF_8);
+			httpPut.setEntity(stringEntity);
+			result = httpPut;
 		} else if (typeRequest.equals(TypeRequest.POST)) {
-			result = new HttpPost(urlFinal);
+			HttpPost httpPost = new HttpPost(url);
+			StringEntity stringEntity = new StringEntity(persona, HTTP.UTF_8);
+			httpPost.setEntity(stringEntity);
+			result = httpPost;
 		} else if (typeRequest.equals(TypeRequest.GET)) {
-			result = new HttpGet(urlFinal);
+			result = new HttpGet(url);
 		}
 
 		return result;
 	}
 
 	@Override
-	protected void onPostExecute(String response) {
-		this.mainActivity.closeDialog();
+	protected void onPostExecute(ClientConnectionResponse response) {
+		this.closeDialog();
 		if (error) {
-			Toast.makeText(getMainActivity().getBaseContext(),
+			Toast.makeText(getActivity().getBaseContext(),
 					"Error en la conexion", Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	@Override
-	public ClientConnectionResponse execute(
+	public ClientConnectionResponse executeREST(
 			ClientConnectionRequest clientConnectionRequest) {
 		ClientConnectionResponse res = null;
 		try {
-			String responseSerialize = this.execute(
-					clientConnectionRequest.getDni()).get();
-			Integer numReg = new JSONArray(responseSerialize).getJSONObject(0)
-					.getInt("NUMREG");
-			HandlerPersona handlerPersona = new HandlerPersona(
-					responseSerialize);
-			res = new ClientConnectionResponse(handlerPersona, numReg);
+			res = this.execute(clientConnectionRequest).get();
 		} catch (InterruptedException e) {
 			Log.e("API_ERROR", e.getMessage());
-			Toast.makeText(getMainActivity().getBaseContext(),
+			Toast.makeText(getActivity().getBaseContext(),
 					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
 					.show();
 		} catch (ExecutionException e) {
 			Log.e("API_ERROR", e.getMessage());
-			Toast.makeText(getMainActivity().getBaseContext(),
-					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
-					.show();
-		} catch (JSONException e) {
-			Log.e("API_ERROR", e.getMessage());
-			Toast.makeText(getMainActivity().getBaseContext(),
+			Toast.makeText(getActivity().getBaseContext(),
 					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
 					.show();
 		}
 		return res;
 	}
 
-	public MainActivity getMainActivity() {
-		return mainActivity;
+	public Activity getActivity() {
+		return activity;
 	}
 
-	public void setMainActivity(MainActivity mainActivity) {
-		this.mainActivity = mainActivity;
+	public void setActivity(Activity activity) {
+		this.activity = activity;
 	}
 
 }
