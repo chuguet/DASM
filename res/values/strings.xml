@@ -31,5 +31,17 @@
     <string name="borrado_ok">Borrado realizado</string>
     <string name="borrado_ko">Borrado cancelado</string>
     <string name="consulta">Consulta finalizada</string>
+    <string name="menu_preferencias">Configurar conexión</string>
+    <string name="preferences_url">URL Servidor</string>
+    <string name="preferences_url_description">Dirección del servidor al que se realizará la conexión</string>
+    <string name="preferences_url_edittext">Introduce la URL</string>
+    <string name="preferences_user">Usuario</string>
+    <string name="preferences_user_description">Usuario que realizará la conexión</string>
+    <string name="preferences_user_edittext">Introduce usuario</string>
+    <string name="preferences_pass">Palabra la Clave</string>
+    <string name="preferences_pass_description">Clave del usuario que realizará la conexión</string>
+    <string name="preferences_pass_edittext">Introduce la clave</string>
+    <string name="servicio_ok">Servicio conectado</string>
+    <string name="servicio_ko">No se ha podido establecer la conexión con el servicio. Configure la conexión.</string>
 
 </resources>

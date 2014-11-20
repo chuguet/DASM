@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Datos de la conectividad">
+        <EditTextPreference
+            android:key="url"
+            android:title="@string/preferences_url"
+            android:summary="@string/preferences_url_description"
+            android:dialogTitle="@string/preferences_url_edittext" />
+        <EditTextPreference
+            android:key="user"
+            android:title="@string/preferences_user"
+            android:summary="@string/preferences_user_description"
+            android:dialogTitle="@string/preferences_user_edittext" />
+        <EditTextPreference
+            android:key="pass"
+            android:title="@string/preferences_pass"
+            android:summary="@string/preferences_pass_description"
+            android:dialogTitle="@string/preferences_pass_edittext" />
+    </PreferenceCategory>
+</PreferenceScreen>

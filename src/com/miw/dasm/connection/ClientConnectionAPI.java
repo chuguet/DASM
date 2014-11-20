@@ -18,8 +18,10 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,7 +35,7 @@ public class ClientConnectionAPI extends
 	private Activity activity;
 	private TypeRequest typeRequest;
 	private boolean error;
-	private final String URL = "http://demo.calamar.eui.upm.es/dasmapi/v1/miw17/fichas";
+	private final String URL = "#url#dasmapi/v1/#user#/#conectivity#";
 
 	public ClientConnectionAPI(Activity activity, TypeRequest typeRequest) {
 		super();
@@ -63,13 +65,10 @@ public class ClientConnectionAPI extends
 	@Override
 	protected ClientConnectionResponse doInBackground(
 			ClientConnectionRequest... params) {
-		ClientConnectionResponse result = null;
 		String datos;
-		String urlFinal = URL;
 		ClientConnectionRequest clientConnectionRequest = params[0];
-		if (!clientConnectionRequest.getDni().isEmpty()) {
-			urlFinal += "/" + clientConnectionRequest.getDni();
-		}
+		ClientConnectionResponse result = null;
+		String urlFinal = buildURL(clientConnectionRequest);
 		try {
 			AndroidHttpClient httpClient = AndroidHttpClient
 					.newInstance("AndroidHttpClient");
@@ -91,6 +90,24 @@ public class ClientConnectionAPI extends
 			error = true;
 		}
 		return result;
+	}
+
+	private String buildURL(ClientConnectionRequest clientConnectionRequest) {
+		SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(getActivity().getBaseContext());
+		String urlFinal = URL.replace("#url#",
+				pref.getString("url", "http://demo.calamar.eui.upm.es/"))
+				.replace("#user#", pref.getString("user", "miw17"));
+		if (!clientConnectionRequest.getDni().isEmpty()) {
+			urlFinal += "/" + clientConnectionRequest.getDni();
+		}
+		if (clientConnectionRequest.getConectivity()) {
+			urlFinal = urlFinal.replace("#conectivity#", "connect") + "/"
+					+ pref.getString("pass", "237252128");
+		} else {
+			urlFinal = urlFinal.replace("#conectivity#", "fichas");
+		}
+		return urlFinal;
 	}
 
 	private HttpUriRequest getRequestBase(String url, String persona)

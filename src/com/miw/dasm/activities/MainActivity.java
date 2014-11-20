@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -15,6 +17,7 @@ import com.miw.dasm.R;
 import com.miw.dasm.connection.ClientConnectionAPI;
 import com.miw.dasm.connection.ClientConnectionRequest;
 import com.miw.dasm.connection.ClientConnectionResponse;
+import com.miw.dasm.connection.IClientConnectionAPI;
 import com.miw.dasm.connection.TypeRequest;
 import com.miw.dasm.model.HandlerPersona;
 import com.miw.dasm.model.ModelSerializer;
@@ -25,6 +28,26 @@ public class MainActivity extends Activity {
 	private static final int EDIT_ACTIVITY = 002;
 	private static final int DELETE_ACTIVITY = 003;
 	private static final int LIST_ACTIVITY = 004;
+	private static final int PREFERENCES_ACTIVITY = 005;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menuPreferencias:
+			Log.d("Preferencias", "Pulsado preferencias");
+			startActivityForResult(new Intent(this, PreferencesActivity.class),
+					PREFERENCES_ACTIVITY);
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -60,6 +83,9 @@ public class MainActivity extends Activity {
 			}
 		} else if (requestCode == LIST_ACTIVITY) {
 			Toast.makeText(getBaseContext(), getString(R.string.consulta),
+					Toast.LENGTH_SHORT).show();
+		} else if (requestCode == PREFERENCES_ACTIVITY) {
+			Toast.makeText(getBaseContext(), getString(R.string.servicio_ok),
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -151,5 +177,20 @@ public class MainActivity extends Activity {
 		this.findViewById(R.id.buttonEdit).setOnClickListener(this.eventButton);
 		this.findViewById(R.id.buttonDelete).setOnClickListener(
 				this.eventButton);
+
+		IClientConnectionAPI clientConnectionAPI = new ClientConnectionAPI(
+				this, TypeRequest.GET);
+		Integer result = clientConnectionAPI.executeREST(
+				new ClientConnectionRequest(true)).getNumReg();
+		if (result == 0) {
+			Toast.makeText(getBaseContext(), getString(R.string.servicio_ok),
+					Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(getBaseContext(), getString(R.string.servicio_ko),
+					Toast.LENGTH_LONG).show();
+			startActivityForResult(new Intent(this, PreferencesActivity.class),
+					PREFERENCES_ACTIVITY);
+		}
+
 	}
 }

@@ -40,6 +40,9 @@
             android:name=".activities.ListActivity"
             android:label="@string/app_name" >
         </activity>
+        <activity
+            android:name=".activities.PreferencesActivity"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>
