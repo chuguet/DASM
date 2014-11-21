@@ -20,29 +20,15 @@ import com.miw.dasm.connection.TypeRequest;
 import com.miw.dasm.model.ModelSerializer;
 import com.miw.dasm.model.Persona;
 
-public class EditActivity extends Activity {
+public class EditActivity extends Activity implements IActivityCallback {
 
 	private OnClickListener editEvent = new OnClickListener() {
 
 		@Override
 		public void onClick(View view) {
-			ClientConnectionResponse response = new ClientConnectionAPI(
-					getContext(), TypeRequest.PUT)
+			new ClientConnectionAPI(getContext(), TypeRequest.PUT)
 					.executeREST(new ClientConnectionRequest((getPersona())));
-
-			Intent intent = new Intent();
-			if (response.getNumReg() == -1) {
-				intent.putExtra("respuesta",
-						getString(R.string.actualizacion_ko));
-				setResult(RESULT_CANCELED, intent);
-			} else {
-				intent.putExtra("respuesta",
-						getString(R.string.actualizacion_ok));
-				setResult(RESULT_OK, intent);
-			}
-			finish();
 		}
-
 	};
 
 	@Override
@@ -105,5 +91,19 @@ public class EditActivity extends Activity {
 
 	public EditActivity getContext() {
 		return this;
+	}
+
+	@Override
+	public void processResponse(
+			ClientConnectionResponse clientConnectionResponse) {
+		Intent intent = new Intent();
+		if (clientConnectionResponse.getNumReg() == -1) {
+			intent.putExtra("respuesta", getString(R.string.actualizacion_ko));
+			setResult(RESULT_CANCELED, intent);
+		} else {
+			intent.putExtra("respuesta", getString(R.string.actualizacion_ok));
+			setResult(RESULT_OK, intent);
+		}
+		finish();
 	}
 }

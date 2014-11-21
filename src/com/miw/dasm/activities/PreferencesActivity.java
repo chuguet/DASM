@@ -10,10 +10,11 @@ import android.widget.Toast;
 import com.miw.dasm.R;
 import com.miw.dasm.connection.ClientConnectionAPI;
 import com.miw.dasm.connection.ClientConnectionRequest;
-import com.miw.dasm.connection.IClientConnectionAPI;
+import com.miw.dasm.connection.ClientConnectionResponse;
 import com.miw.dasm.connection.TypeRequest;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity implements
+		IActivityCallback {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,24 +33,26 @@ public class PreferencesActivity extends PreferenceActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		boolean returnValue = false;
+		super.onKeyDown(keyCode, event);
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
 			Log.d("Preferencias", "boton atras pulsado");
-
-			IClientConnectionAPI clientConnectionAPI = new ClientConnectionAPI(
-					this, TypeRequest.GET);
-			Integer result = clientConnectionAPI.executeREST(
-					new ClientConnectionRequest(true)).getNumReg();
-			if (result == 0) {
-				setResult(RESULT_OK);
-				returnValue = super.onKeyDown(keyCode, event);
-				finish();
-			} else {
-				Toast.makeText(getBaseContext(),
-						getString(R.string.servicio_ko), Toast.LENGTH_LONG)
-						.show();
-			}
+			new ClientConnectionAPI(this, TypeRequest.GET)
+					.executeREST(new ClientConnectionRequest(true));
 		}
-		return returnValue;
+		return false;
+	}
+
+	@Override
+	public void processResponse(
+			ClientConnectionResponse clientConnectionResponse) {
+		Integer result = clientConnectionResponse.getNumReg();
+		if (result == 0) {
+			setResult(RESULT_OK);
+			finish();
+		} else {
+			Toast.makeText(getBaseContext(),
+					getString(R.string.servicio_ko), Toast.LENGTH_LONG)
+					.show();
+		}
 	}
 }

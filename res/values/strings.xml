@@ -43,5 +43,6 @@
     <string name="preferences_pass_edittext">Introduce la clave</string>
     <string name="servicio_ok">Servicio conectado</string>
     <string name="servicio_ko">No se ha podido establecer la conexión con el servicio. Configure la conexión.</string>
+    <string name="respuesta_ko">Error en la respuesta del servidor.</string>
 
 </resources>

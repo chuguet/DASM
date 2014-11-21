@@ -17,12 +17,11 @@ import com.miw.dasm.R;
 import com.miw.dasm.connection.ClientConnectionAPI;
 import com.miw.dasm.connection.ClientConnectionRequest;
 import com.miw.dasm.connection.ClientConnectionResponse;
-import com.miw.dasm.connection.IClientConnectionAPI;
 import com.miw.dasm.connection.TypeRequest;
 import com.miw.dasm.model.HandlerPersona;
 import com.miw.dasm.model.ModelSerializer;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements IActivityCallback {
 
 	private static final int ADD_ACTIVITY = 001;
 	private static final int EDIT_ACTIVITY = 002;
@@ -97,71 +96,15 @@ public class MainActivity extends Activity {
 	private final OnClickListener eventButton = new OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			try {
-				String dni = ((EditText) findViewById(R.id.textDniSearch))
-						.getText().toString();
-				if (view.getId() != R.id.buttonSearch && dni.isEmpty()) {
-					Toast.makeText(getBaseContext(), "Debe introducir un DNI",
-							Toast.LENGTH_SHORT).show();
-				} else {
-					ClientConnectionResponse response = new ClientConnectionAPI(
-							getContext(), TypeRequest.GET)
-							.executeREST(new ClientConnectionRequest((dni)));
-
-					launchView(response.getHandlerPersona(), view.getId(), dni);
-				}
-			} catch (IOException e) {
-				Log.e("ERROR_SERIALIZE", e.getMessage());
-			}
-		}
-
-		private void launchView(HandlerPersona handlerPersona, int idButton,
-				String dni) throws IOException {
-			Intent intent;
-			switch (idButton) {
-			case R.id.buttonAdd:
-				if (handlerPersona.contains(dni)) {
-					Toast.makeText(getBaseContext(), "La persona ya existe",
-							Toast.LENGTH_SHORT).show();
-				} else {
-					intent = new Intent(getBaseContext(), AddActivity.class);
-					intent.putExtra("value", dni);
-					startActivityForResult(intent, ADD_ACTIVITY);
-				}
-				break;
-			case R.id.buttonDelete:
-				if (handlerPersona.contains(dni)) {
-					intent = new Intent(getBaseContext(), DeleteActivity.class);
-					intent.putExtra("value", ModelSerializer.getInstance()
-							.serialize(handlerPersona.get(dni)));
-					startActivityForResult(intent, DELETE_ACTIVITY);
-				} else {
-					Toast.makeText(getBaseContext(), "La persona no existe",
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
-			case R.id.buttonSearch:
-				if (handlerPersona.contains(dni) || dni.isEmpty()) {
-					intent = new Intent(getBaseContext(), ListActivity.class);
-					intent.putExtra("value", ModelSerializer.getInstance()
-							.serialize(handlerPersona));
-					startActivityForResult(intent, LIST_ACTIVITY);
-				} else {
-					Toast.makeText(getBaseContext(), "La persona no existe",
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
-			case R.id.buttonEdit:
-				if (handlerPersona.contains(dni)) {
-					intent = new Intent(getBaseContext(), EditActivity.class);
-					intent.putExtra("value", ModelSerializer.getInstance()
-							.serialize(handlerPersona.get(dni)));
-					startActivityForResult(intent, EDIT_ACTIVITY);
-				} else {
-					Toast.makeText(getBaseContext(), "La persona no existe",
-							Toast.LENGTH_SHORT).show();
-				}
-				break;
+			String dni = ((EditText) findViewById(R.id.textDniSearch))
+					.getText().toString();
+			if (view.getId() != R.id.buttonSearch && dni.isEmpty()) {
+				Toast.makeText(getBaseContext(), "Debe introducir un DNI",
+						Toast.LENGTH_SHORT).show();
+			} else {
+				new ClientConnectionAPI(getContext(), TypeRequest.GET)
+						.executeREST(new ClientConnectionRequest(dni, view
+								.getId()));
 			}
 		}
 	};
@@ -178,19 +121,84 @@ public class MainActivity extends Activity {
 		this.findViewById(R.id.buttonDelete).setOnClickListener(
 				this.eventButton);
 
-		IClientConnectionAPI clientConnectionAPI = new ClientConnectionAPI(
-				this, TypeRequest.GET);
-		Integer result = clientConnectionAPI.executeREST(
-				new ClientConnectionRequest(true)).getNumReg();
-		if (result == 0) {
-			Toast.makeText(getBaseContext(), getString(R.string.servicio_ok),
-					Toast.LENGTH_LONG).show();
-		} else {
-			Toast.makeText(getBaseContext(), getString(R.string.servicio_ko),
-					Toast.LENGTH_LONG).show();
-			startActivityForResult(new Intent(this, PreferencesActivity.class),
-					PREFERENCES_ACTIVITY);
-		}
+		new ClientConnectionAPI(this, TypeRequest.GET)
+				.executeREST(new ClientConnectionRequest(true));
+	}
 
+	@Override
+	public void processResponse(
+			ClientConnectionResponse clientConnectionResponse) {
+		try {
+			Integer result = clientConnectionResponse.getNumReg();
+			if (clientConnectionResponse.getConnectivity()) {
+				if (result == 0) {
+					Toast.makeText(getBaseContext(),
+							getString(R.string.servicio_ok), Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(getBaseContext(),
+							getString(R.string.servicio_ko), Toast.LENGTH_LONG)
+							.show();
+					startActivityForResult(new Intent(this,
+							PreferencesActivity.class), PREFERENCES_ACTIVITY);
+				}
+			} else {
+				launchView(clientConnectionResponse.getHandlerPersona(),
+						clientConnectionResponse.getButtonId(),
+						clientConnectionResponse.getDniFind());
+			}
+		} catch (IOException e) {
+			Toast.makeText(getBaseContext(), getString(R.string.respuesta_ko), Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void launchView(HandlerPersona handlerPersona, int idButton,
+			String dni) throws IOException {
+		Intent intent;
+		switch (idButton) {
+		case R.id.buttonAdd:
+			if (handlerPersona.contains(dni)) {
+				Toast.makeText(getBaseContext(), "La persona ya existe",
+						Toast.LENGTH_SHORT).show();
+			} else {
+				intent = new Intent(getBaseContext(), AddActivity.class);
+				intent.putExtra("value", dni);
+				startActivityForResult(intent, ADD_ACTIVITY);
+			}
+			break;
+		case R.id.buttonDelete:
+			if (handlerPersona.contains(dni)) {
+				intent = new Intent(getBaseContext(), DeleteActivity.class);
+				intent.putExtra("value", ModelSerializer.getInstance()
+						.serialize(handlerPersona.get(dni)));
+				startActivityForResult(intent, DELETE_ACTIVITY);
+			} else {
+				Toast.makeText(getBaseContext(), "La persona no existe",
+						Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case R.id.buttonSearch:
+			if (handlerPersona.contains(dni) || dni.isEmpty()) {
+				intent = new Intent(getBaseContext(), ListActivity.class);
+				intent.putExtra("value", ModelSerializer.getInstance()
+						.serialize(handlerPersona));
+				startActivityForResult(intent, LIST_ACTIVITY);
+			} else {
+				Toast.makeText(getBaseContext(), "La persona no existe",
+						Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case R.id.buttonEdit:
+			if (handlerPersona.contains(dni)) {
+				intent = new Intent(getBaseContext(), EditActivity.class);
+				intent.putExtra("value", ModelSerializer.getInstance()
+						.serialize(handlerPersona.get(dni)));
+				startActivityForResult(intent, EDIT_ACTIVITY);
+			} else {
+				Toast.makeText(getBaseContext(), "La persona no existe",
+						Toast.LENGTH_SHORT).show();
+			}
+			break;
+		}
 	}
 }

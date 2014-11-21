@@ -20,27 +20,16 @@ import com.miw.dasm.connection.TypeRequest;
 import com.miw.dasm.model.ModelSerializer;
 import com.miw.dasm.model.Persona;
 
-public class DeleteActivity extends Activity {
+public class DeleteActivity extends Activity implements IActivityCallback {
 
 	private OnClickListener deleteEvent = new OnClickListener() {
 
 		@Override
 		public void onClick(View view) {
-			ClientConnectionResponse response = new ClientConnectionAPI(
-					getContext(), TypeRequest.DELETE)
+			new ClientConnectionAPI(getContext(), TypeRequest.DELETE)
 					.executeREST(new ClientConnectionRequest(
 							((EditText) findViewById(R.id.textDni)).getText()
 									.toString()));
-
-			Intent intent = new Intent();
-			if (response.getNumReg() == -1) {
-				intent.putExtra("respuesta", getString(R.string.borrado_ko));
-				setResult(RESULT_CANCELED, intent);
-			} else {
-				intent.putExtra("respuesta", getString(R.string.borrado_ok));
-				setResult(RESULT_OK, intent);
-			}
-			finish();
 		}
 
 	};
@@ -94,5 +83,19 @@ public class DeleteActivity extends Activity {
 
 	public DeleteActivity getContext() {
 		return this;
+	}
+
+	@Override
+	public void processResponse(
+			ClientConnectionResponse clientConnectionResponse) {
+		Intent intent = new Intent();
+		if (clientConnectionResponse.getNumReg() == -1) {
+			intent.putExtra("respuesta", getString(R.string.borrado_ko));
+			setResult(RESULT_CANCELED, intent);
+		} else {
+			intent.putExtra("respuesta", getString(R.string.borrado_ok));
+			setResult(RESULT_OK, intent);
+		}
+		finish();
 	}
 }

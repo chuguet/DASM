@@ -2,7 +2,6 @@ package com.miw.dasm.connection;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -26,6 +25,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.miw.dasm.R;
+import com.miw.dasm.activities.IActivityCallback;
 import com.miw.dasm.model.HandlerPersona;
 
 public class ClientConnectionAPI extends
@@ -80,7 +80,10 @@ public class ClientConnectionAPI extends
 			Integer numReg = new JSONArray(datos).getJSONObject(0).getInt(
 					"NUMREG");
 			HandlerPersona handlerPersona = new HandlerPersona(datos);
-			result = new ClientConnectionResponse(handlerPersona, numReg);
+			result = new ClientConnectionResponse(handlerPersona, numReg,
+					clientConnectionRequest.getIdButton(),
+					clientConnectionRequest.getDni(),
+					clientConnectionRequest.getConectivity());
 			httpClient.close();
 		} catch (IOException e) {
 			Log.e("API_ERROR", e.getMessage());
@@ -135,31 +138,18 @@ public class ClientConnectionAPI extends
 
 	@Override
 	protected void onPostExecute(ClientConnectionResponse response) {
-		this.closeDialog();
 		if (error) {
 			Toast.makeText(getActivity().getBaseContext(),
-					"Error en la conexion", Toast.LENGTH_SHORT).show();
+					getActivity().getString(R.string.respuesta_ko), Toast.LENGTH_SHORT).show();
+			return;
 		}
+		((IActivityCallback) getActivity()).processResponse(response);
+		this.closeDialog();
 	}
 
 	@Override
-	public ClientConnectionResponse executeREST(
-			ClientConnectionRequest clientConnectionRequest) {
-		ClientConnectionResponse res = null;
-		try {
-			res = this.execute(clientConnectionRequest).get();
-		} catch (InterruptedException e) {
-			Log.e("API_ERROR", e.getMessage());
-			Toast.makeText(getActivity().getBaseContext(),
-					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
-					.show();
-		} catch (ExecutionException e) {
-			Log.e("API_ERROR", e.getMessage());
-			Toast.makeText(getActivity().getBaseContext(),
-					"Error en la respuesta del servidor", Toast.LENGTH_SHORT)
-					.show();
-		}
-		return res;
+	public void executeREST(ClientConnectionRequest clientConnectionRequest) {
+		this.execute(clientConnectionRequest);
 	}
 
 	public Activity getActivity() {
